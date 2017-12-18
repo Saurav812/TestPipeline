@@ -34,7 +34,7 @@ node('master') {
 
        stage('Test'){
 
-         env.NODE_ENV = "test"
+         env.NODE_ENV = "master"
 
          print "Environment will be : ${env.NODE_ENV}"
 
