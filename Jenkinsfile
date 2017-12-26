@@ -33,7 +33,7 @@ pipeline {
 		stage ('checkout') {
 			steps {
 				// start with clean workspace , sometimes pipeline are stopped manually
-				deleteDir() // lavnish : must delete workspace at end of job , else space on jenkins server goes full
+				//deleteDir() // lavnish : must delete workspace at end of job , else space on jenkins server goes full. Post build cleanup code placed
 				echo "checking out branch ${Branch_Name}"
 				// NOTE : ${Branch_Name} is defined as pipeline parameter
 				git branch: '${Branch_Name}', url: 'https://gitlab.putnaminv.com/public_cloud/SB_Reference_App.git' // todo_2nd : use git_url from environment section
@@ -177,9 +177,29 @@ pipeline {
 
         }
 
-		stage('archive') {
+		stage('Archive') {
 			// todo_1st_2 : archive in JFrog if all selenium test cases pass , in putnam JFrog is used its Open source.
 			// https://www.jfrog.com/confluence/display/RTF/Working+With+Pipeline+Jobs+in+Jenkins
+      // Below is the code for Jfrog archive, we need to configure the server details in Manage Jenkins
+        steps {
+          script {
+            // Obtain an Artifactory server instance, defined in Jenkins --> Manage:
+                    def server = Artifactory.server SERVER_ID
+
+                    def uploadSpec = """{
+                          "files": [
+                              {
+                                  "pattern": "/target/*.war",
+                                  "target": "location on server"
+                                }
+                                    ]
+                                      }"""
+                    server.upload(uploadSpec)
+
+                    // Publish the merged build-info to Artifactory
+                    server.publishBuildInfo buildInfo1
+          }
+        }
 		}
 
     }
@@ -189,7 +209,9 @@ pipeline {
 					// TODO_1st : send summary email with all Junit , Selenium & JAcoco numbers // lavnish : do with xunit
 					publishHTML([allowMissing: true, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'location of test report dir', reportFiles: 'index.html', reportName: 'Selenium HTML Report', reportTitles: ''])
            			echo 'Post Build Steps !'
-					deleteDir() // lavnish : must delete workspace at end of job , else space on jenkins server goes full
+					deleteDir()
+          cleanWs cleanWhenAborted: false, cleanWhenFailure: false, cleanWhenNotBuilt: false, cleanWhenUnstable: false
+           // lavnish : must delete workspace at end of job , else space on jenkins server goes full
        			}
        			success {
 					echo 'Jenkins Pipeline Successful !!'
