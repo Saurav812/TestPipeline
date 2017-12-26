@@ -71,10 +71,10 @@ pipeline {
                         step([$class: 'XUnitBuilder', thresholds: [[$class: 'FailedThreshold',
                         unstableThreshold: '1']],tools: [[$class: 'JUnitType', pattern: 'target/surefire-reports/**']]])
                       } catch (e) {
-                          currentBuild.result = 'SUCCESS'
+                          currentBuild.result = 'FAILED'
                         throw e
                       } finally {
-                        emailext attachLog: true, body: 'Unit Test has passed ', subject: 'SUCCESS', to: 'abc@xyz.com'
+                        emailext attachLog: true, body: 'Unit Test has FAILED ', subject: 'FAILED', to: 'abc@xyz.com'
                       }
                   }
                   publishHTML([
@@ -95,30 +95,27 @@ pipeline {
 		// Run the code coverage report
         stage('JaCoCo Code Coverage') {
             steps {
-                dir('SB_Reference_App') {
-                    //sh "${mvnHome}/bin/mvn -B -f ./product-api -Dspring.profiles.active=integration -Dmaven.test.failure.ignore=true prepare-package"
-                    jacoco(classPattern: './product-api/target/**/classes', execPattern: './product-api/target/jacoco.exec', sourcePattern: './product-api/src/main/java')
-                    // TODO_1st : if code coverage  is below threshold stop build & fail , is there a way show these numbers on UI  or record and send at end of email
+                script {
+                  try {
+                    dir('SB_Reference_App') {
+                        //sh "${mvnHome}/bin/mvn -B -f ./product-api -Dspring.profiles.active=integration -Dmaven.test.failure.ignore=true prepare-package"
+                        jacoco(classPattern: './product-api/target/**/classes', execPattern: './product-api/target/jacoco.exec', sourcePattern: './product-api/src/main/java')
+                        // TODO_1st : if code coverage  is below threshold stop build & fail , is there a way show these numbers on UI  or record and send at end of email
+                                            }
+                  } catch e {
+                        currentBuild.result = 'FAILED'
+                    throw e
+                  } finally {
+                        // Email triggered if the build is failed
+                        emailext attachLog: true, body: 'JACOCO Code Coverage has FAILED ', subject: 'FAILED', to: 'abc@xyz.com'
+                            }
 
-					/* lavnish : dont see a need for this
-					jacoco buildOverBuild: true, changeBuildStatus: true, deltaBranchCoverage: '15', deltaClassCoverage: '20',
-                    deltaComplexityCoverage: '20', deltaInstructionCoverage: '6', deltaLineCoverage: '25', deltaMethodCoverage: '35',
-                    maximumBranchCoverage: '30', maximumClassCoverage: '50', maximumComplexityCoverage: '40', maximumInstructionCoverage: '10',
-                    maximumLineCoverage: '50', maximumMethodCoverage: '60', minimumBranchCoverage: '20', minimumClassCoverage: '25',
-                    minimumComplexityCoverage: '25', minimumInstructionCoverage: '7', minimumLineCoverage: '30', minimumMethodCoverage: '40'*/
-                }
-                  /*email should be send only once in last
-				  post {
-                      // Notify user for the failure
-                      failure {
-                        emailext attachLog: true, body: '', subject: 'Failures', to: 'xyz@domain.com'
-                      }
-                  }*/
+                        }
 
-            }
-        }
+                    }
 
         // Run the Sonar code quality scan
+        // Try catch is required here as well ?
         stage('Sonar Code Quality Scan') {
             steps {
                 dir('SB_Reference_App') {
