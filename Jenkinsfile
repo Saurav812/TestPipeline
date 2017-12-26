@@ -88,7 +88,7 @@ pipeline {
                   }
             }
 			// lavnish : can we run this in parallel later ?
-          /* If we want to run Paralled Unit test and Integration test below can be used-
+          /* If we want to run Parallel Unit test and Integration test below can be used-
                                       stage ('test') {
                                         steps {
                                             parallel (
