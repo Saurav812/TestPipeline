@@ -88,6 +88,16 @@ pipeline {
                   }
             }
 			// lavnish : can we run this in parallel later ?
+          /* If we want to run Paralled Unit test and Integration test below can be used-
+                                      stage ('test') {
+                                        steps {
+                                            parallel (
+                                                "unit tests": { sh 'mvn test' },
+                                                "integration tests": { sh 'mvn integration-test' }
+                                            )
+                                        }
+
+          */
 			// todo_2nd : run tests in parallel https://jenkins.io/blog/2016/06/16/parallel-test-executor-plugin/
 		}
 
