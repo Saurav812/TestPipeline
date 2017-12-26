@@ -17,12 +17,11 @@ pipeline {
 
     environment {
 	    // the idea is to encapsulate all variables here.
-        def server_ip_address_or_name = ""
-
-		def server_username_name = ""
-
-		def server_password = "" // there is a way to get this from jenkins please google.
-		def git_url = ""
+      // Exactly do we want to display all the values here, as this is used to use the varriable in the script. Please clarify
+            def server_ip_address_or_name = ""
+            def server_username_name = ""
+            def server_password = "" // there is a way to get this from jenkins please google.
+		          def git_url = ""
 	    // todo_2nd : ip address or server name of the server where we will deploy tomcat
 		// i expect these def to be available in stages below , can you please see how to do that. or in worst case we will define as jenkins parameter. like ${Branch_Name} below
 		// lavnish : todo_2nd : define project_folder="SB_Reference_App" and then use it instead of  dir('SB_Reference_App') { in all of below stages
