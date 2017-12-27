@@ -111,7 +111,7 @@ pipeline {
                         jacoco(classPattern: './product-api/target/**/classes', execPattern: './product-api/target/jacoco.exec', sourcePattern: './product-api/src/main/java')
                         // TODO_1st : if code coverage  is below threshold stop build & fail , is there a way show these numbers on UI  or record and send at end of email
                                             }
-                  } catch e {
+                  } catch (e) {
                         currentBuild.result = 'FAILED'
                     throw e
                   } finally {
@@ -122,7 +122,7 @@ pipeline {
                         }
 
                     }
-
+                  }
         // Run the Sonar code quality scan
         // Try catch is required here as well ?
         stage('Sonar Code Quality Scan') {
